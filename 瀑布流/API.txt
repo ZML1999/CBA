@@ -1,0 +1,8 @@
+LodashÎÄµµµØÖ·
+http://lodashjs.com/docs/
+
+Animate.css
+https://daneden.github.io/animate.css/
+
+WOW.js
+http://mynameismatthieu.com/WOW/

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<link rel="stylesheet" href="css/animate.min.css">
+	<title>Zepto瀑布流</title>
+	<style>
+		html{
+			height: 100%;
+		}
+
+		body{
+			margin: 0;
+			padding: 0;
+		}
+	
+		.container{
+			position: relative;
+		}
+			
+		.box{
+			box-sizing: border-box;
+			width: 33.3333%;
+			padding: 4px;
+			position: absolute;
+		}
+		
+		.box>img{
+			box-sizing: border-box;
+			width: 100%;
+			padding: 12px;
+			border: 1px solid gray;
+			border-radius: 8px;
+			background-color: #eee;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="box"><img src="images/1.png"></div>
+		<div class="box"><img src="images/2.png"></div>
+		<div class="box"><img src="images/3.png"></div>
+		<div class="box"><img src="images/4.png"></div>
+		<div class="box"><img src="images/5.png"></div>
+		<div class="box"><img src="images/6.png"></div>
+		<div class="box"><img src="images/7.png"></div>
+		<div class="box"><img src="images/8.png"></div>
+		<div class="box"><img src="images/9.png"></div>
+		<div class="box"><img src="images/10.png"></div>
+		<div class="box"><img src="images/11.png"></div>
+		<div class="box"><img src="images/12.png"></div>
+		<div class="box"><img src="images/13.png"></div>
+		<div class="box"><img src="images/14.png"></div>
+		<div class="box"><img src="images/15.png"></div>
+		<div class="box"><img src="images/16.png"></div>
+		<div class="box"><img src="images/17.png"></div>
+		<div class="box"><img src="images/18.png"></div>
+		<div class="box"><img src="images/19.png"></div>
+		<div class="box"><img src="images/20.png"></div>
+	</div>
+</body>
+<script src="js/zepto.min.js"></script>
+<script src="js/lodash.min.js"></script>
+<script src="js/wow.min.js"></script>
+<script>
+	//图片设置为固定宽度，高度是未知(需要加载完知道)
+	
+	//获取浏览器的宽度
+	var W = $(window).width();
+	console.log(W)
+	//保存图片列的高度
+	var imgHeight = [0,0,0];
+	console.log(imgHeight)
+	$(".box").each(function(index, el) {
+		//判断图片是否加载完成
+		if($(el).children('img')[0].complete){
+			//求数组最小值
+	 		var minH = Math.min.apply(null,imgHeight);	
+	 		//求数组最小值所在的图片列		
+	 		var minI = imgHeight.indexOf(minH);
+	 		//把el转化为zepto的对象
+	 		//把DOM对象放到队列的最小值所在的列
+	 		//把DOM对象的高度设置为当前最小值
+	 		$(el).css({
+	 			left:minI*W/3,
+	 			top:minH
+	 		})
+	 		//需要把数组最小值所在的列的值加上当前的图片高度
+	 		imgHeight[minI] = minH + $(el).height();
+	 		var max = Math.max.apply(null,imgHeight);
+	 		//把父容器的高度设置为最高的图片队列的高度
+	 		$(".container").height(max);
+		}else{
+			//如果图片未加载完成，则等待加载后计算
+			$(el).children('img').on("load",function(){
+		 		var minH = Math.min.apply(null,imgHeight);	
+		 		var minI = imgHeight.indexOf(minH);
+		 		$(el).css({
+		 			left:minI*W/3,
+		 			top:minH
+		 		})
+		 		imgHeight[minI] = minH + $(el).height();			
+	 			var max = Math.max.apply(null,imgHeight);
+	 			$(".container").height(max);
+			})
+		}
+	});
+
+	//scroll是一个高频事件，节流和去抖可以解决
+	$(window).on("scroll",_.debounce(function(event) {
+			//获取滚动的高度
+			//获取页面的高度
+			//获取浏览器的高度
+			//页面的高度 = 最大滚动高度+浏览器的高度
+			var sH = $(window).scrollTop();
+			var wH = $(window).height();
+			var bH = $("body").height();
+			//滚动到距离页面底部100px时执行
+			if(sH > (bH-wH-100)){
+				for(var i=1;i<=20;i++){
+					var str = '<div class="box wow zoomIn">'+
+										'<img src="images/'+i+'.png">'+
+										'</div>';
+					var $box = $(str);		//创建zepto元素
+					$(".container").append($box);
+					$box.children('img').on("load",function(){
+				 		var minH = Math.min.apply(null,imgHeight);	
+				 		var minI = imgHeight.indexOf(minH);
+				 		//修改当前加载图片的父亲元素的定位
+				 		$(this).parent().css({
+				 			left:minI*W/3,
+				 			top:minH
+				 		})
+				 		imgHeight[minI] = minH + $(this).parent().height();			
+			 			var max = Math.max.apply(null,imgHeight);
+			 			$(".container").height(max);
+					})					
+				}
+			}
+		},200)
+	);
+	
+	new WOW().init();
+
+</script>
+</html>
